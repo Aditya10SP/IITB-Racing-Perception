@@ -7,9 +7,8 @@ from object_detect.yolo import Yolo
 from Keypoint_Detection.Keypoint import Keypoints
 from random import sample
 
-
 #TODO: change to call from camera
-img_path = "mono_image/WIN_20220521_12_41_28_Pro.jpg"
+img_path = "mono_image/WIN_20220522_11_34_44_Pro.jpg"
 yolo_weights = './object_detect/yolov5/weights/last.pt'
 yolo_data = './object_detect/yolov5/models/data.yaml'
 kpr_path = "./Keypoint_Detection/Weights/23_loss_0.38.pt"
@@ -72,8 +71,8 @@ for i in range(15):
     objpoints = [] # 3d point in real world space
     imgpoints = [] # 2d points in image plane.
 
-    images = glob.glob('chessboard_images/*.jpg')
-    images = sample(images,10)
+    images = glob.glob('chessboard_images2/*.jpg')
+    images = sample(images,20)
 
     for image in images:
         img = cv2.imread(image)
