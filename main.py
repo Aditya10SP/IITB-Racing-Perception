@@ -6,6 +6,7 @@ import math
 from object_detect.yolo import Yolo
 from Keypoint_Detection.Keypoint import Keypoints
 from random import sample
+from tqdm import tqdm
 
 #TODO: change to call from camera
 img_path = "mono_image/WIN_20220522_11_34_44_Pro.jpg"
@@ -61,55 +62,71 @@ print("Images saved as: result_img.png")
 
 #CAMERA CALIBRATION
 
-for i in range(15):
-# termination criteria
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-    objp = np.zeros((6*7,3), np.float32)*1000
-    objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
-# Arrays to store object points and image points from all the images.
-    objpoints = [] # 3d point in real world space
-    imgpoints = [] # 2d points in image plane.
+n_iter = 100
+for n_samples in np.arange(8,20):
+    print(f'\nNumber of cones: {n_samples}')
+    depths = []
+    for i in range(n_iter):
+        if i%10==0:
+            print(f'{i}/100')
+    # termination criteria
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+    # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+        objp = np.zeros((6*7,3), np.float32)*1000
+        objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
+    # Arrays to store object points and image points from all the images.
+        objpoints = [] # 3d point in real world space
+        imgpoints = [] # 2d points in image plane.
 
-    images = glob.glob('chessboard_images2/*.jpg')
-    images = sample(images,20)
+        images = glob.glob('chessboard_images2/*.jpg')
+        images = sample(images,n_samples)
 
-    for image in images:
-        img = cv2.imread(image)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-# Find the chess board corners
-        ret, corners = cv2.findChessboardCorners(gray, (7,6), cv2.CALIB_CB_ADAPTIVE_THRESH
-                        + cv2.CALIB_CB_FAST_CHECK +
-                        cv2.CALIB_CB_NORMALIZE_IMAGE)
-# If found, add object points, image points (after refining them)
-        if ret == True:
-            objpoints.append(objp)
-            corners2 = cv2.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
-            imgpoints.append(corners)
-    # Draw 
-            cv2.drawChessboardCorners(img, (7,6), corners2, ret)
-        #cv2.imshow('img', img)
-        #cv2.waitKey(1000)
-    cv2.destroyAllWindows()
+        for image in images:
+            img = cv2.imread(image)
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Find the chess board corners
+            ret, corners = cv2.findChessboardCorners(gray, (7,6), cv2.CALIB_CB_ADAPTIVE_THRESH
+                            + cv2.CALIB_CB_FAST_CHECK +
+                            cv2.CALIB_CB_NORMALIZE_IMAGE)
+    # If found, add object points, image points (after refining them)
+            if ret == True:
+                objpoints.append(objp)
+                corners2 = cv2.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
+                imgpoints.append(corners)
+        # Draw 
+                cv2.drawChessboardCorners(img, (7,6), corners2, ret)
+            #cv2.imshow('img', img)
+            #cv2.waitKey(1000)
+        cv2.destroyAllWindows()
 
-    ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-# 3D model points.
+        ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+    # 3D model points.
 
-#theta = (180/3.14)*(math.atan(12/2.5))
+    #theta = (180/3.14)*(math.atan(12/2.5))
 
-    model_points = (25.4)*np.array([
-                        (2.5, 12.0, 0.0),             
-                        (((2/3)*2.5), 8.0, 0.0),        
-                        (((4/3)*2.5), 8.0, 0.0),     
-                        ((2.5/3), 4.0, 0.0),
-                        (((5/3)*2.5), 4.0, 0.0),      
-                        (0.0, 0.0, 0.0),    
-                        (5.0, 0.0, 0.0)      
-                    ])
+        model_points = (25.4)*np.array([
+                            (2.5, 12.0, 0.0),             
+                            (((2/3)*2.5), 8.0, 0.0),        
+                            (((4/3)*2.5), 8.0, 0.0),     
+                            ((2.5/3), 4.0, 0.0),
+                            (((5/3)*2.5), 4.0, 0.0),      
+                            (0.0, 0.0, 0.0),    
+                            (5.0, 0.0, 0.0)      
+                        ])
 
-    (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, all_key_pts_wrt_img, mtx, dist)
-    print("camera matrix",i+1,"\n",mtx)
-    print("depth using camera matrix",i+1,"\n",translation_vector[2])
+        (success, rotation_vector, translation_vector) = cv2.solvePnP(model_points, all_key_pts_wrt_img, mtx, dist)
+        if i==0:
+            camera_matrix_iter = np.expand_dims(mtx,0)
+        else:
+            camera_matrix_iter = np.concatenate([camera_matrix_iter, np.expand_dims(mtx,0)], axis=0)
+        # print(camera_matrix_iter.shape)
+        depths.append(translation_vector[2])
+
+        # print("camera matrix",i+1,"\n",mtx)
+        # print("depth using camera matrix",i+1,"\n",translation_vector[2])
+    depths = np.array(depths)
+    print(f"Mean Depth = {depths.mean()}, Standard Deviation = {depths.std()}")
+    print(f"Mean Cam Matrix = \n{np.mean(camera_matrix_iter, axis=0)}, \n\nStandard Deviation = \n{np.std(camera_matrix_iter, axis=0)}")
 
 # # print(rvecs.shape)
 # #print(np.array(rvecs[0]))
