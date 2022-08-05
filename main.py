@@ -64,7 +64,7 @@ print("Images saved as: result_img.png")
 
 n_iter = 100
 for n_samples in np.arange(8,20):
-    print(f'\nNumber of cones: {n_samples}')
+    print(f'\nNumber of random chessboard images: {n_samples}')
     depths = []
     for i in range(n_iter):
         if i%10==0:
