@@ -1,0 +1,11 @@
+Propagation using PnP
+
+https://docs.opencv.org/3.3.0/dc/dbb/tutorial_py_calibration.html
+https://stackoverflow.com/questions/39432322/what-does-the-getoptimalnewcameramatrix-do-in-opencv
+https://www.pythonpool.com/opencv-solvepnp/
+https://docs.opencv.org/4.x/d5/d1f/calib3d_solvePnP.html
+
+Get all possible camera properties from FSDS settings
+
+Use 2D-3D correspondences from FSDS to get camera properties from OpenCV
+Use these properties for PnP Depth estimation and propagation.

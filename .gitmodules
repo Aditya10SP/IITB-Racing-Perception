@@ -1,0 +1,6 @@
+[submodule "object_detect/yolov5"]
+	path = object_detect/yolov5
+	url = https://github.com/ultralytics/yolov5.git
+[submodule "object_detect/yolo-tensorrt"]
+	path = object_detect/yolo-tensorrt
+	url = https://github.com/enazoe/yolo-tensorrt

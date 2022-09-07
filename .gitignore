@@ -1,0 +1,17 @@
+Pipfile.lock
+/dataset
+/*.png
+/*.zip
+/visualize.py
+/abcd.py
+/temp.py
+/temp2.py
+/temp3.py
+/.idea
+/stereo_image/content
+/stereo_image/yolov5fsdstest
+/stereo_image/yolov5fsdstest.zip
+/object_detect/runs
+/object_detect/*.mp4
+.stereoenv/*
+/propagation_metrics/*
