@@ -11,6 +11,7 @@ from Keypoint_Detection.Keypoint import Keypoints
 from sift import Features
 from triangulator import DepthFinder
 from projection import *
+from bearings import *
 import pickle
 import time
 import math
@@ -37,42 +38,13 @@ depths = triangulator.find_depth(torch.tensor(l_kpts), torch.tensor(r_kpts))
 depths = [str(ele) for ele in (np.round(np.array((depths)/1000), decimals=2))]
 print(depths)
 
-def bearing(depth,cone_centre, img_shape):
-    focal_length=250
-    centre=(img_shape[0]//2,img_shape[1]//2)
-    distance=(centre[1]-cone_centre[0])
-    theta=180*np.arctan(distance/focal_length)/np.pi
-    range=float(depth)/(np.cos(theta*(np.pi)/180))  #2D Range
-    cone_height = 0.325
-    camera_height = 0.8 
-    height_diff=camera_height-cone_height
-    range_3d=np.sqrt((range**2)+(height_diff**2))
-    return theta, range_3d
-
-cone_centres = []
-for i in range(len(depths)):    
-    conec_x = 0
-    conec_y = 0
-    for j in range(7): 
-        conec_x = conec_x + int(l_kpts[i][j][0])
-        conec_y = conec_y + int(l_kpts[i][j][1])
-    conec_x = conec_x//7 
-    conec_y = conec_y//7
-    cone_centres.append([conec_x,conec_y])
-
+cone_centres = cone_centre(l_kpts,depths)
+thetas,range_3d = theta_range(depths,cone_centres,left_image)
 print("cone_centres",cone_centres)
-
-thetas = []
-ranges = []
-for i in range(len(depths)):
-    cone_centre = cone_centres[i]
-    theta,range_3d = bearing(depths[i],cone_centre, left_image.shape)
-    thetas.append(theta)
-    ranges.append(range_3d)
-
 print("thetas",thetas)
-print("ranges",ranges)
-draw_propagate(l_kpts, r_kpts, left_image, right_image, annots=depths)
+print("3d_ranges",range_3d)
+
+# draw_propagate(l_kpts, r_kpts, left_image, right_image, annots=depths)
 # draw_propagate(l_kpts, r_kpts, left_image, right_image, line=True)
 
 

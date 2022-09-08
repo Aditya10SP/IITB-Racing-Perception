@@ -23,7 +23,6 @@ class DepthFinder:
 		'''
 		Input: kps: torch tensors of size (n_cones, 7, 2)
 		'''
-
 		disparity = (left_kps-right_kps)[:,:,0]
 		depths = torch.abs(torch.mean(torch.divide(self.prod, disparity), dim=1))
 		depth_mean = torch.mean(depths)
