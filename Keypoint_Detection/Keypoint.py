@@ -49,7 +49,6 @@ class Keypoints:
 			hm = flat_softmax(hm)
 			out = KeypointNet.soft_argmax(hm)
 			kpt = out.view(-1, 7, 2)
-
 		else:
 			image = torch.from_numpy(image).type('torch.FloatTensor')
 			[hm, kpt] = self.model(image)	# kpt = [7,x,y]

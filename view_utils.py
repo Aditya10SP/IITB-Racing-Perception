@@ -42,9 +42,11 @@ def get_kp_from_bb(left_boxes, left_image, kpr_model):
         ''' Extract bounding box and get left(predicted) keypoints '''
         cone_img = left_image[y1:y2,x1:x2]
         cheight, cwidth, _ = cone_img.shape
+        cheight = 80
+        cwidth = 80
         kpts = kpr_model.get_keypoints(cone_img)
         kpts = np.array(kpts * [[cwidth,cheight]])
-
+        # print(kpts)
         ''' Get left(predicted) image keypoints'''
         left_pts = []
         for pt in kpts:

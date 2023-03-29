@@ -12,9 +12,9 @@ def bearing(depth,cone_centre, img_shape):
     range_3d=np.sqrt((range**2)+(height_diff**2))
     return theta, range_3d
 
-def cone_centre(l_kpts,depths):
+def cone_centre(l_kpts):
     cone_centres = []
-    for i in range(len(depths)):    
+    for i in range(len(l_kpts)):    
         conec_x = 0
         conec_y = 0
         for j in range(7): 

@@ -32,11 +32,12 @@ class DepthFinder:
 			if(depth.item() > depth_mean):
 				new_depth.append(depth.item()*0.65)
 			else:
-				new_depth.append(depth.item()*0.85)
+				new_depth.append(depth.item()*0.75)
 		new_depth = np.array(new_depth)
 		# print(new_depth)
 		depths = torch.from_numpy(new_depth)
 		return depths
+		
 class Triangulation:
     
 	focus = 0
